@@ -6,14 +6,11 @@ import { existsSync, statSync } from "node:fs";
 import { styleText } from "node:util";
 import * as p from "@clack/prompts";
 import type { RenamePattern } from "../patterns-config.js";
-import {
-  BUILT_IN_PRESETS,
-  readUserPatterns,
-  appendUserPattern,
-} from "../patterns-config.js";
+import { BUILT_IN_PRESETS, readUserPatterns, appendUserPattern } from "../patterns-config.js";
 import type { RenameEntry } from "../renamer.js";
 import { applyRenames, computeNewNames, countFilesWithMatch, listFiles } from "../renamer.js";
 import { formatPreview, PREVIEW_MAX_LINES } from "./common.js";
+import { VERSION } from "../flags.js";
 
 const INTRO_BANNER = `
   ██████╗  ███╗   ██╗ ███╗   ███╗               
@@ -47,7 +44,7 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
   // Print banner directly so Clack doesn't reflow/wrap it and break the layout
   // TODO: check if this can be resolved withGuide prop in the upcoming release of Clack
   console.log(styleText(["bold", "green"], INTRO_BANNER));
-  p.intro(styleText(["bold", "magenta"], "Interactive batch file renamer"));
+  p.intro(styleText(["bold", "magenta"], `Interactive batch file renamer - v${VERSION}`));
 
   const dirResult = await p.path({
     message: "Folder to rename files in",

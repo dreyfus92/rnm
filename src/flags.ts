@@ -2,9 +2,28 @@
  * CLI flag parsing and usage/version output.
  */
 
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { parse } from "@bomb.sh/args";
 
-const VERSION = "0.1.0";
+function loadVersion(): string {
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  const pkgPath = join(__dirname, "..", "package.json");
+  try {
+    const raw = readFileSync(pkgPath, "utf-8");
+    const pkg = JSON.parse(raw) as { version?: string };
+    if (typeof pkg.version !== "string") {
+      throw new Error("package.json missing version field");
+    }
+    return pkg.version;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`Could not read version from package.json: ${msg}`);
+  }
+}
+
+export const VERSION = loadVersion();
 
 export interface ParsedArgs {
   help: boolean;
