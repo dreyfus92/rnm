@@ -2,7 +2,7 @@
  * Pure renamer logic: list files, compute new names (find/replace), validate, apply with safe ordering.
  */
 
-import { readdirSync, lstatSync, renameSync } from "node:fs";
+import { lstatSync, readdirSync, renameSync } from "node:fs";
 import { join } from "node:path";
 
 /** One rename operation: original filename → new filename */
@@ -33,7 +33,7 @@ export function computeNewNames(
   files: string[],
   find: string,
   replace: string,
-  isRegex: boolean
+  isRegex: boolean,
 ): RenameEntry[] {
   let regex: RegExp;
   if (isRegex) {
@@ -62,7 +62,7 @@ export function computeNewNames(
     }
     if (newName !== oldName && fileSet.has(newName)) {
       throw new Error(
-        `Replacement would overwrite existing file "${newName}" which is not being renamed.`
+        `Replacement would overwrite existing file "${newName}" which is not being renamed.`,
       );
     }
 
