@@ -40,7 +40,7 @@ function exitIfCancelSelect(value: unknown): "literal" | "regex" {
 export async function runInteractive(dryRun: boolean): Promise<void> {
   // Print banner directly so Clack doesn't reflow/wrap it and break the layout
   console.log(styleText(["bold", "green"], INTRO_BANNER));
-  p.intro(styleText(["bold", "magenta"], "Let's rename some files!"));
+  p.intro(styleText(["bold", "magenta"], "Interactive batch file renamer"));
 
   const dirResult = await p.path({
     message: "Folder to rename files in",
