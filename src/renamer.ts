@@ -37,7 +37,7 @@ export function countFilesWithMatch(files: string[], find: string, isRegex: bool
   let regex: RegExp;
   if (isRegex) {
     try {
-      regex = new RegExp(find);
+      regex = new RegExp(find, "g");
     } catch {
       throw new Error(`Invalid regex: ${find}`);
     }
@@ -62,7 +62,7 @@ export function computeNewNames(
   let regex: RegExp;
   if (isRegex) {
     try {
-      regex = new RegExp(find);
+      regex = new RegExp(find, "g");
     } catch {
       throw new Error(`Invalid regex: ${find}`);
     }
