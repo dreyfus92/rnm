@@ -6,7 +6,7 @@ import { existsSync, statSync } from "node:fs";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import type { RenameEntry } from "../renamer.js";
-import { applyRenames, computeNewNames, listFiles } from "../renamer.js";
+import { applyRenames, computeNewNames, countFilesWithMatch, listFiles } from "../renamer.js";
 import { formatPreview, PREVIEW_MAX_LINES } from "./common.js";
 
 function exitIfCancel(value: unknown): asserts value is string | boolean {
@@ -73,6 +73,20 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
   });
   exitIfCancel(findResult);
   const find = findResult;
+
+  let matchCount: number;
+  try {
+    matchCount = countFilesWithMatch(files, find, isRegex);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    p.log.error(msg);
+    process.exit(1);
+  }
+
+  if (matchCount === 0) {
+    p.log.message("No renames to perform (no matches). Exiting.");
+    process.exit(0);
+  }
 
   const replaceResult = await p.text({
     message: "Replace with",

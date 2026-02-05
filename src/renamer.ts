@@ -29,6 +29,30 @@ export function listFiles(dir: string): string[] {
   return files;
 }
 
+/**
+ * Returns how many files contain at least one match for the find pattern.
+ * Use this to decide whether to prompt for "Replace with" in interactive mode.
+ */
+export function countFilesWithMatch(files: string[], find: string, isRegex: boolean): number {
+  let regex: RegExp;
+  if (isRegex) {
+    try {
+      regex = new RegExp(find);
+    } catch {
+      throw new Error(`Invalid regex: ${find}`);
+    }
+  } else {
+    if (find === "") throw new Error("Find pattern cannot be empty for literal match.");
+    regex = new RegExp(escapeRegexLiteral(find), "g");
+  }
+  let count = 0;
+  for (const name of files) {
+    regex.lastIndex = 0;
+    if (regex.test(name)) count++;
+  }
+  return count;
+}
+
 export function computeNewNames(
   files: string[],
   find: string,
