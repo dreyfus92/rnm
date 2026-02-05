@@ -1,0 +1,33 @@
+{
+  "name": "rnm",
+  "version": "0.1.0",
+  "description": "Interactive batch file renamer CLI",
+  "type": "module",
+  "main": "./dist/cli.mjs",
+  "types": "./dist/cli.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/cli.d.mts",
+      "import": "./dist/cli.mjs"
+    }
+  },
+  "bin": {
+    "rnm": "./dist/cli.mjs"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsdown",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "picocolors": "^1.0.0"
+  },
+  "devDependencies": {
+    "tsdown": "^0.20.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

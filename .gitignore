@@ -1,0 +1,16 @@
+node_modules
+dist
+*.tsbuildinfo
+.DS_Store
+.pnpm-store
+
+# Test coverage (for when tests are added)
+coverage
+
+# Logs
+*.log
+pnpm-debug.log*
+
+# Local env (optional; uncomment if you add .env for config)
+# .env
+# .env.local
