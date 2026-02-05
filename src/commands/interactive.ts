@@ -9,6 +9,15 @@ import type { RenameEntry } from "../renamer.js";
 import { applyRenames, computeNewNames, countFilesWithMatch, listFiles } from "../renamer.js";
 import { formatPreview, PREVIEW_MAX_LINES } from "./common.js";
 
+const INTRO_BANNER = `
+  ██████╗  ███╗   ██╗ ███╗   ███╗               
+  ██╔══██╗ ████╗  ██║ ████╗ ████║      
+  ██████╔╝ ██╔██╗ ██║ ██╔████╔██║      
+  ██╔══██╗ ██║╚██╗██║ ██║╚██╔╝██║      
+  ██║  ██║ ██║ ╚████║ ██║ ╚═╝ ██║      
+  ╚═╝  ╚═╝ ╚═╝  ╚═══╝ ╚═╝     ╚═╝
+`;
+
 function exitIfCancel(value: unknown): asserts value is string | boolean {
   if (p.isCancel(value)) {
     p.cancel("Cancelled.");
@@ -29,7 +38,9 @@ function exitIfCancelSelect(value: unknown): "literal" | "regex" {
 }
 
 export async function runInteractive(dryRun: boolean): Promise<void> {
-  p.intro(styleText(["bold", "cyan"], "rnm"));
+  // Print banner directly so Clack doesn't reflow/wrap it and break the layout
+  console.log(styleText(["bold", "green"], INTRO_BANNER));
+  p.intro(styleText(["bold", "magenta"], "Let's rename some files!"));
 
   const dirResult = await p.path({
     message: "Folder to rename files in",
