@@ -39,6 +39,7 @@ function exitIfCancelSelect(value: unknown): "literal" | "regex" {
 
 export async function runInteractive(dryRun: boolean): Promise<void> {
   // Print banner directly so Clack doesn't reflow/wrap it and break the layout
+  // TODO: check if this can be resolved withGuide prop in the upcoming release of Clack
   console.log(styleText(["bold", "green"], INTRO_BANNER));
   p.intro(styleText(["bold", "magenta"], "Interactive batch file renamer"));
 
