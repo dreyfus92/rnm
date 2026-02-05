@@ -4,12 +4,15 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@clack/prompts': 1.0.0
+
 importers:
 
   .:
     dependencies:
       '@clack/prompts':
-        specifier: ^1.0.0
+        specifier: 1.0.0
         version: 1.0.0
       picocolors:
         specifier: ^1.0.0

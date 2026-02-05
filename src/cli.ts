@@ -7,12 +7,8 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { existsSync, statSync } from "node:fs";
-import {
-  listFiles,
-  computeNewNames,
-  applyRenames,
-  type RenameEntry,
-} from "./renamer.js";
+import { listFiles, computeNewNames, applyRenames } from "./renamer.js";
+import type { RenameEntry } from "./renamer.js";
 
 const VERSION = "0.1.0";
 const PREVIEW_MAX_LINES = 20;
@@ -126,7 +122,7 @@ function runScriptMode(args: ParsedArgs): void {
   let renames: RenameEntry[];
   try {
     renames = computeNewNames(files, find, replace, isRegex);
-  } catch (err) {
+  } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("Error:", msg);
     process.exit(1);
@@ -146,7 +142,7 @@ function runScriptMode(args: ParsedArgs): void {
   try {
     applyRenames(dir, renames);
     console.log("Done.");
-  } catch (err) {
+  } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("Error:", msg);
     process.exit(1);
@@ -171,13 +167,17 @@ function exitIfCancelSelect<T>(value: unknown): T {
 async function runInteractive(dryRun: boolean): Promise<void> {
   p.intro(pc.bold(pc.cyan("rnm")));
 
-  const dirResult = await p.text({
+  const dirResult = await p.path({
     message: "Folder to rename files in",
-    placeholder: "e.g. . or ./photos",
+    directory: true,
     initialValue: process.cwd(),
   });
   exitIfCancel(dirResult);
-  const dir = dirResult.trim() || process.cwd();
+  if (typeof dirResult !== "string") {
+    p.cancel("Cancelled.");
+    process.exit(0);
+  }
+  const dir = dirResult;
 
   if (!existsSync(dir)) {
     p.log.error(`Directory does not exist: ${dir}`);
@@ -220,7 +220,7 @@ async function runInteractive(dryRun: boolean): Promise<void> {
   let renames: RenameEntry[];
   try {
     renames = computeNewNames(files, find, replace, isRegex);
-  } catch (err) {
+  } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     p.log.error(msg);
     process.exit(1);
@@ -255,8 +255,8 @@ async function runInteractive(dryRun: boolean): Promise<void> {
   try {
     applyRenames(dir, renames);
     s.stop("Done.");
-  } catch (err) {
-    s.stop("Failed.", 1);
+  } catch (err: unknown) {
+    s.stop("Failed.");
     const msg = err instanceof Error ? err.message : String(err);
     p.log.error(msg);
     process.exit(1);
