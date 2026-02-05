@@ -84,7 +84,7 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
   }
 
   if (matchCount === 0) {
-    p.log.message("No renames to perform (no matches). Exiting.");
+    p.outro("No renames to perform (no matches). Exiting.");
     process.exit(0);
   }
 
@@ -106,7 +106,7 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
   }
 
   if (renames.length === 0) {
-    p.log.message("No renames to perform (no matches). Exiting.");
+    p.outro("No renames to perform (no matches). Exiting.");
     process.exit(0);
   }
 
