@@ -4,6 +4,7 @@
  * Supports --help, --version, --dry-run, and script mode (--dir, --find, --replace, --yes, --literal).
  */
 
+import { parse } from "@bomb.sh/args";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { existsSync, statSync } from "node:fs";
@@ -24,37 +25,24 @@ interface ParsedArgs {
   literal: boolean;
 }
 
+const ARGS_CONFIG = {
+  boolean: ["help", "version", "dry-run", "yes", "literal"] as const,
+  string: ["dir", "find", "replace"] as const,
+  alias: { h: "help", v: "version", y: "yes" } as const,
+};
+
 function parseArgs(argv: string[]): ParsedArgs {
-  const out: ParsedArgs = {
-    help: false,
-    version: false,
-    dryRun: false,
-    dir: undefined,
-    find: undefined,
-    replace: undefined,
-    yes: false,
-    literal: false,
+  const raw = parse(argv, ARGS_CONFIG);
+  return {
+    help: Boolean(raw.help),
+    version: Boolean(raw.version),
+    dryRun: Boolean(raw["dry-run"]),
+    dir: raw.dir,
+    find: raw.find,
+    replace: raw.replace,
+    yes: Boolean(raw.yes),
+    literal: Boolean(raw.literal),
   };
-  const take = (i: number): string | undefined => argv[i];
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i];
-    if (arg === "-h" || arg === "--help") out.help = true;
-    else if (arg === "-v" || arg === "--version") out.version = true;
-    else if (arg === "--dry-run") out.dryRun = true;
-    else if (arg === "-y" || arg === "--yes") out.yes = true;
-    else if (arg === "--literal") out.literal = true;
-    else if (arg === "--dir" && take(i + 1)) {
-      out.dir = take(i + 1);
-      i++;
-    } else if (arg === "--find" && take(i + 1)) {
-      out.find = take(i + 1);
-      i++;
-    } else if (arg === "--replace") {
-      out.replace = take(i + 1) ?? "";
-      i++;
-    }
-  }
-  return out;
 }
 
 function printHelp(): void {
