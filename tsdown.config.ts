@@ -7,4 +7,5 @@ export default defineConfig({
   clean: true,
   outDir: "dist",
   noExternal: ["@clack/prompts", "picocolors"],
+  inlineOnly: false,
 });
