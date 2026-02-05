@@ -6,6 +6,6 @@ export default defineConfig({
   dts: true,
   clean: true,
   outDir: "dist",
-  noExternal: ["@clack/prompts", "picocolors"],
+  noExternal: ["@clack/prompts"],
   inlineOnly: false,
 });

@@ -3,8 +3,8 @@
  */
 
 import { existsSync, statSync } from "node:fs";
+import { styleText } from "node:util";
 import * as p from "@clack/prompts";
-import pc from "picocolors";
 import type { RenameEntry } from "../renamer.js";
 import { applyRenames, computeNewNames, countFilesWithMatch, listFiles } from "../renamer.js";
 import { formatPreview, PREVIEW_MAX_LINES } from "./common.js";
@@ -29,7 +29,7 @@ function exitIfCancelSelect(value: unknown): "literal" | "regex" {
 }
 
 export async function runInteractive(dryRun: boolean): Promise<void> {
-  p.intro(pc.bold(pc.cyan("rnm")));
+  p.intro(styleText(["bold", "cyan"], "rnm"));
 
   const dirResult = await p.path({
     message: "Folder to rename files in",
@@ -84,7 +84,7 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
   }
 
   if (matchCount === 0) {
-    p.outro("No renames to perform (no matches). Exiting.");
+    p.outro(styleText("yellow", "No renames to perform (no matches). Exiting."));
     process.exit(0);
   }
 
@@ -102,11 +102,10 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
     const msg = err instanceof Error ? err.message : String(err);
     p.log.error(msg);
     process.exit(1);
-    renames = [];
   }
 
   if (renames.length === 0) {
-    p.outro("No renames to perform (no matches). Exiting.");
+    p.outro(styleText("yellow", "No renames to perform (no matches). Exiting."));
     process.exit(0);
   }
 
@@ -114,7 +113,7 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
 
   if (dryRun) {
     p.note("Dry run: no files were renamed.", "Done");
-    p.outro(pc.green("Done."));
+    p.outro(styleText("green", "Done."));
     process.exit(0);
   }
 
@@ -141,5 +140,5 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
   }
 
   p.note("Files updated.", "Done");
-  p.outro(pc.green("Done."));
+  p.outro(styleText("green", "Done."));
 }

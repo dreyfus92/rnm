@@ -26,8 +26,7 @@
   },
   "dependencies": {
     "@bomb.sh/args": "^0.3.1",
-    "@clack/prompts": "^1.0.0",
-    "picocolors": "^1.0.0"
+    "@clack/prompts": "^1.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.14",
