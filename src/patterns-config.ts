@@ -16,14 +16,16 @@ export interface RenamePattern {
  * Built-in presets based on common batch-rename use cases (PowerRename, Bulk Rename
  * Utility, mmv, and common "clean filename" / regex-rename patterns).
  */
+
+// TODO: do some research on common batch-rename use cases and add more presets
 export const BUILT_IN_PRESETS: RenamePattern[] = [
   { name: "Remove digits", find: "\\d+", replace: "" },
   { name: "Spaces to underscores", find: "\\s+", replace: "_" },
   { name: "Spaces to hyphens", find: "\\s+", replace: "-" },
   { name: "Remove leading/trailing spaces", find: "^\\s+|\\s+$", replace: "" },
   { name: "Multiple spaces to single space", find: "\\s{2,}", replace: " " },
-  { name: "Remove [brackets] and content", find: "\\s*\\[[^\\]]*\\]", replace: "" },
-  { name: "Remove (parentheses) and content", find: "\\s*\\([^)]*\\)", replace: "" },
+  { name: "Remove brackets only", find: "[\\[\\]]", replace: "" },
+  { name: "Remove parentheses only", find: "[()]", replace: "" },
   { name: "Replace special characters with underscore", find: "[^a-zA-Z0-9._-]+", replace: "_" },
   { name: "Remove leading zeros", find: "^0+(?=\\d)", replace: "" },
 ];
