@@ -5,6 +5,12 @@
 import { existsSync, statSync } from "node:fs";
 import { styleText } from "node:util";
 import * as p from "@clack/prompts";
+import type { RenamePattern } from "../patterns-config.js";
+import {
+  BUILT_IN_PRESETS,
+  readUserPatterns,
+  appendUserPattern,
+} from "../patterns-config.js";
 import type { RenameEntry } from "../renamer.js";
 import { applyRenames, computeNewNames, countFilesWithMatch, listFiles } from "../renamer.js";
 import { formatPreview, PREVIEW_MAX_LINES } from "./common.js";
@@ -79,12 +85,62 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
   const matchType = exitIfCancelSelect(matchTypeResult);
   const isRegex = matchType === "regex";
 
-  const findResult = await p.text({
-    message: "Find pattern",
-    placeholder: isRegex ? "e.g. /\\d+/ or photo_" : "e.g. photo_",
-  });
-  exitIfCancel(findResult);
-  const find = findResult;
+  let find: string;
+  let replace: string;
+  let isCustomPattern = false;
+
+  if (isRegex) {
+    const userPatterns = await readUserPatterns();
+    const combined: RenamePattern[] = [...BUILT_IN_PRESETS, ...userPatterns];
+    const presetOptions = combined.map((pat, i) => ({
+      value: String(i),
+      label: pat.name,
+    }));
+    presetOptions.push({ value: "custom", label: "Custom…" });
+
+    const patternChoice = await p.select({
+      message: "Choose a pattern",
+      options: presetOptions,
+    });
+    if (p.isCancel(patternChoice)) {
+      p.cancel("Cancelled.");
+      process.exit(0);
+    }
+    const choice = patternChoice as string;
+
+    if (choice === "custom") {
+      isCustomPattern = true;
+      const findResult = await p.text({
+        message: "Find pattern",
+        placeholder: "e.g. /\\d+/ or photo_",
+      });
+      exitIfCancel(findResult);
+      find = findResult;
+      const replaceResult = await p.text({
+        message: "Replace with",
+        placeholder: "$1",
+      });
+      exitIfCancel(replaceResult);
+      replace = replaceResult;
+    } else {
+      const preset = combined[Number.parseInt(choice, 10)];
+      find = preset.find;
+      replace = preset.replace;
+    }
+  } else {
+    const findResult = await p.text({
+      message: "Find pattern",
+      placeholder: "e.g. photo_",
+    });
+    exitIfCancel(findResult);
+    find = findResult;
+    const replaceResult = await p.text({
+      message: "Replace with",
+      placeholder: "$1",
+    });
+    exitIfCancel(replaceResult);
+    replace = replaceResult;
+  }
 
   let matchCount: number;
   try {
@@ -99,13 +155,6 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
     p.outro(styleText("yellow", "No renames to perform (no matches). Exiting."));
     process.exit(0);
   }
-
-  const replaceResult = await p.text({
-    message: "Replace with",
-    placeholder: "$1",
-  });
-  exitIfCancel(replaceResult);
-  const replace = replaceResult;
 
   let renames: RenameEntry[];
   try {
@@ -149,6 +198,28 @@ export async function runInteractive(dryRun: boolean): Promise<void> {
     const msg = err instanceof Error ? err.message : String(err);
     p.log.error(msg);
     process.exit(1);
+  }
+
+  if (isCustomPattern) {
+    const saveResult = await p.confirm({
+      message: "Save this pattern to your list?",
+      initialValue: false,
+    });
+    if (!p.isCancel(saveResult) && saveResult) {
+      const nameResult = await p.text({
+        message: "Pattern name",
+        placeholder: "e.g. My custom pattern",
+      });
+      if (!p.isCancel(nameResult) && typeof nameResult === "string" && nameResult.trim()) {
+        try {
+          await appendUserPattern(nameResult.trim(), find, replace);
+          p.log.success(`Saved as "${nameResult.trim()}".`);
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          p.log.error(`Could not save pattern: ${msg}`);
+        }
+      }
+    }
   }
 
   p.note("Files updated.", "Done");
